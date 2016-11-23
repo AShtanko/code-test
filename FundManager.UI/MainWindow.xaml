@@ -1,0 +1,133 @@
+﻿<Window x:Class="FundManager.UI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:data="clr-namespace:FundManager.Impl.Data;assembly=FundManager.Impl"
+        xmlns:converters="clr-namespace:FundManager.UI.Converters"
+        mc:Ignorable="d"
+        Title="MainWindow">
+    <Window.Resources>
+        <ResourceDictionary>
+            <converters:StringToBooleanConveter x:Key="StringToBooleanConveter"/>
+            <converters:HasErrorConverter x:Key="HasErrorConverter"/>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid x:Name="Root">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <Grid Margin="10" DataContext="{Binding Path=NewStock, Mode=TwoWay}">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal" Margin="5" >
+                <RadioButton IsChecked="{Binding Path=StockType, Converter={StaticResource StringToBooleanConveter}, ConverterParameter={x:Static data:StockType.EquityTypeName}}"
+                                 Content="{Binding Source={x:Static data:StockType.EquityTypeName}}"
+                                 Margin="0,0,10,0"/>
+                <RadioButton IsChecked="{Binding Path=StockType, Converter={StaticResource StringToBooleanConveter}, ConverterParameter={x:Static data:StockType.BondTypeName}}"
+                                 Content="{Binding Source={x:Static data:StockType.BondTypeName}}"/>
+            </StackPanel>
+            <Grid Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Label>Price</Label>
+                <TextBox Grid.Row="0" Grid.Column="1" Width="100" Margin="0,3,0,0"
+                             Text="{Binding Path=Price, Mode=TwoWay, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus, StringFormat=N2}" />
+                <Label Grid.Row="1" Grid.Column="0">Quantity</Label>
+                <TextBox Grid.Row="1" Grid.Column="1" Width="100" Margin="0,3,0,0"
+                             Text="{Binding Path=Quantity, Mode=TwoWay, ValidatesOnDataErrors=True, UpdateSourceTrigger=LostFocus, StringFormat=N0}" />
+            </Grid>
+            <Grid Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                <StackPanel  Orientation="Horizontal" Margin="10,20,0,0">
+                    <Button Margin="15,0,15,0" Width="100" Height="35" Command="{Binding Path=DataContext.AddNewStockCommand, ElementName=Root}">ADD STOCK</Button>
+                    <Button Width="100" Height="35" Command="{Binding Path=DataContext.ClearStockDataCommand, ElementName=Root}">CLEAR</Button>
+                </StackPanel>
+            </Grid>
+            <Grid Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" x:Name="ErrorGrid">
+                <Label Content="{Binding Path=Error}" FontSize="24" Foreground="Red" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
+            </Grid>
+        </Grid>
+        <Grid Grid.Row="1" >
+            <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding Path=Stocks}" IsReadOnly="True">
+                <DataGrid.Resources>
+                    <Style x:Key="cellStyle" TargetType="{x:Type TextBlock}">
+                        <Setter Property="Margin" Value="2"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Path=Error, Converter={StaticResource HasErrorConverter}}" Value="True">
+                                <Setter Property="Background" Value="Red"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Name" Binding="{Binding Path=Model.Name}"/>
+                    <DataGridTextColumn Header="Transaction costs" ElementStyle="{StaticResource cellStyle}"  Binding="{Binding Path=Model.TransactionCosts}"/>
+                    <DataGridTextColumn Header="Price"  Binding="{Binding Path=Model.Price}"/>
+                    <DataGridTextColumn Header="Quantity"  Binding="{Binding Path=Model.Quantity}"/>
+                    <DataGridTextColumn Header="Market value"  Binding="{Binding Path=Model.MarketValue}"/>
+                    <DataGridTextColumn Header="Stock weight"  Binding="{Binding Path=Model.StockWeight}"/>
+                    <DataGridTextColumn Header="Error"  Binding="{Binding Error}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+        <Grid Grid.Row="2" Width="400" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Row="0" Grid.Column="0" Margin="3">Equity Quantity :</Label>
+            <TextBlock Grid.Row="0" Grid.Column="1" Margin="3" Text="{Binding Path=EquityQuantity}"/>
+            <Label Grid.Row="1" Grid.Column="0" Margin="3">Equity Weight :</Label>
+            <TextBlock Grid.Row="1" Grid.Column="1" Margin="3" Text="{Binding Path=TotalEquityWeight}"/>
+            <Label Grid.Row="2" Grid.Column="0" Margin="3">Equity Market value :</Label>
+            <TextBlock Grid.Row="2" Grid.Column="1" Margin="3" Text="{Binding Path=TotalEquityMarketValue}"/>
+            <Label Grid.Row="0" Grid.Column="2" Margin="3">Bond Quantity :</Label>
+            <TextBlock Grid.Row="0" Grid.Column="3" Margin="3" Text="{Binding Path=BondQuantity}"/>
+            <Label Grid.Row="1" Grid.Column="2" Margin="3">Bond Weight :</Label>
+            <TextBlock Grid.Row="1" Grid.Column="3" Margin="3" Text="{Binding Path=TotalBondWeight}"/>
+            <Label Grid.Row="2" Grid.Column="2" Margin="3">Bond Market value :</Label>
+            <TextBlock Grid.Row="2" Grid.Column="3" Margin="3" Text="{Binding Path=TotalBondMarketValue}"/>
+        </Grid>
+        <Grid Grid.Row="3" Width="200" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Row="0" Grid.Column="0" Margin="3">Total Quantity :</Label>
+            <TextBlock Grid.Row="0" Grid.Column="1" Margin="3" Text="{Binding Path=TotalQuantity}"/>
+            <Label Grid.Row="1" Grid.Column="0" Margin="3">Total Weight :</Label>
+            <TextBlock Grid.Row="1" Grid.Column="1" Margin="3" Text="{Binding Path=TotalWeight}"/>
+            <Label Grid.Row="2" Grid.Column="0" Margin="3">Total Market value :</Label>
+            <TextBlock Grid.Row="2" Grid.Column="1" Margin="3" Text="{Binding Path=TotalMarketValue}"/>
+        </Grid>
+    </Grid>
+</Window>
